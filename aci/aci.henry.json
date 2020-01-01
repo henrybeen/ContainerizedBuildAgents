@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "discriminator": {
+            "value": "hb"
+        },
+        "numberOfAgents": {
+            "value": 2
+        },
+        "numberOfCpuCores": {
+            "value": 1
+        },
+        "numberOfMemoryGigabytes": {
+            "value": 1
+        },
+        "containerImageName": {
+            "value": "hbazdoagentacr.azurecr.io/docker-windows-agent:latest"
+        },
+        "azdoUrl": {
+            "value": "https://dev.azure.com/azurespecialist"
+        },
+        "azdoPool": {
+            "value": "SelfWindows"
+        },
+        "acrName": {
+            "value": "hbazdoagentacr"
+        },
+        "acrResourceGroupName": {
+            "value": "Tools"
+        }
+    }
+}

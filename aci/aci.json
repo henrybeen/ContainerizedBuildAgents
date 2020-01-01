@@ -1,0 +1,100 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "discriminator": {
+            "type": "string",
+            "minLength": 1
+        },
+        "numberOfAgents": {
+            "type": "int",
+            "minValue": 1
+        },
+        "numberOfCpuCores": {
+            "type": "int",
+            "minValue": 1
+        },
+        "numberOfMemoryGigabytes": {
+            "type": "int",
+            "minValue": 1
+        },
+        "containerImageName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "azdoUrl": {
+            "type": "string",
+            "minLength": 1
+        },
+        "azdoToken": {
+            "type": "securestring",
+            "minLength": 1
+        },
+        "azdoPool": {
+            "type": "string",
+            "minLength": 1
+        },
+        "acrName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "acrResourceGroupName": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "variables": {
+        "aciName": "[concat(parameters('discriminator'), 'azdoagentaci')]"
+    },
+    "resources": [
+        {
+            "name": "[concat(variables('aciName'), copyIndex())]",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-10-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "imageRegistryCredentials": [{
+                    "server": "[reference(resourceId(subscription().subscriptionId, parameters('acrResourceGroupName'), 'Microsoft.ContainerRegistry/registries', parameters('acrName')), '2017-10-01').loginServer]",
+                    "username": "[listCredentials(resourceId(subscription().subscriptionId, parameters('acrResourceGroupName'), 'Microsoft.ContainerRegistry/registries', parameters('acrName')),'2017-03-01').username]",
+                    "password": "[listCredentials(resourceId(subscription().subscriptionId, parameters('acrResourceGroupName'), 'Microsoft.ContainerRegistry/registries', parameters('acrName')),'2017-03-01').passwords[0].value]"
+                }],
+                "containers": [{
+                    "name": "[concat('agent-', copyIndex())]",
+                    "properties": {
+                        "image": "[parameters('containerImageName')]",
+                        "environmentVariables": [
+                            {
+                                "name": "AZDO_URL",
+                                "value": "[parameters('azdoUrl')]"
+                            },
+                            {
+                                "name": "AZDO_TOKEN",
+                                "secureValue": "[parameters('azdoToken')]"
+                            },
+                            {
+                                "name": "AZDO_POOL",
+                                "value": "[parameters('azdoPool')]"
+                            },
+                            {
+                                "name": "AZDO_AGENT_NAME",
+                                "value": "[concat('agent-', copyIndex())]"
+                            }
+                        ],
+                        "resources": {
+                            "requests": {
+                                "cpu": "[parameters('numberOfCpuCores')]",
+                                "memoryInGB": "[parameters('numberOfMemoryGigabytes')]"
+                            }
+                        }
+                    }
+                }],
+                "osType": "Windows",
+                "restartPolicy": "Always"
+            },
+            "copy": {
+                "name": "acrCopy",
+                "count": "[parameters('numberOfAgents')]"
+            }
+        }
+    ]
+}

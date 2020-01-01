@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "discriminator": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "variables": {
+        "acrName": "[concat(parameters('discriminator'), 'azdoagentacr')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('acrName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        }
+    ]
+}

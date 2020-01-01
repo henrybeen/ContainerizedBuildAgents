@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include: 
+      - master
+  paths:
+    include: 
+      - aci
+    
+pool:
+  name: Azure Pipelines
+  vmImage: windows-2019
+
+workspace:
+    clean: all
+
+steps:
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Create or update ACI instances'
+    inputs:
+      azureSubscription: 'RG-BuildAgents'
+      resourceGroupName: 'BuildAgents'
+      location: 'West Europe'
+      csmFile: 'aci/aci.json'
+      csmParametersFile: 'aci/aci.henry.json'
+      deploymentMode: Complete
+      overrideParameters: '-azdoToken "$(AZDO_TOKEN)"'
